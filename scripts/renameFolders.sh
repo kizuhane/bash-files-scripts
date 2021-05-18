@@ -16,7 +16,7 @@ find . -maxdepth 2 -type d -name "${inputDirName}" |
     filePath="${NAME%/*}"
 
     # ignore files start wich "_" and "!"
-    if [[ "${NAME}" =~ [_*|/!*] ]]; then
+    if [[ "${NAME#\.\/}" =~ [_*|/!*] ]]; then
         continue
     fi
 

@@ -18,7 +18,7 @@ find . -type d -name $targetFolder |
     itemName="${NAME%/*}"
 
     # ignore files start wich "_" and "!"
-    if [[ "${NAME}" =~ [_*|/!*] ]]; then
+    if [[ "${NAME#\.\/}" =~ [_*|/!*] ]]; then
         continue
     fi
 

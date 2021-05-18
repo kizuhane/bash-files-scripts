@@ -17,7 +17,7 @@ find . -type f -name "${inputFileName}.${inputFileExtention}" |
     filePath="${NAME%/*}"
 
     # ignore files start wich "_" and "!"
-    if [[ "${NAME}" =~ [_*|/!*] ]]; then
+    if [[ "${NAME#\.\/}" =~ [_*|/!*] ]]; then
         continue
     fi
 

@@ -21,7 +21,7 @@ if [ $countDir != 0 ]; then
             # Will not run if no directories are available
 
             # ignore files start wich "_" and "!"
-            if [[ "${dir}" =~ [_*|/!*] ]]; then
+            if [[ "${dir#\.\/}" =~ [_*|/!*] ]]; then
                 continue
             fi
             
