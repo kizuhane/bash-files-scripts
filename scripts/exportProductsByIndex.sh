@@ -73,13 +73,10 @@ echo -e "\nzaznaczonych elemętów - ${#uniqFilesIndexArray[*]} \n"
 for item in ${uniqFilesIndexArray[@]}; do
     NAME=`find . -type d -regextype posix-extended -regex "^.*\-${item}"`
 
-    # echo "${NAME#\.\/}"
-
     # ignore files start wich "_" and "!"
     if [[ "${NAME#\.\/}" =~ [_*|/!*] ]]; then
         continue
       fi
-
 
     # if product dont exist push to $missingIndex array
     if ! [[ $NAME ]]; then
@@ -112,7 +109,6 @@ for item in ${uniqFilesIndexArray[@]}; do
         cp -r -v "${NAME}/gotowe" "${ExportFolder}/${itemIndex}"
       fi
 
-
     # exporter produkts couter
     let "exportedIndexCounter+=1"
   done
@@ -121,6 +117,7 @@ echo -e "\n\nznaleziono ${exportedIndexCounter} produktów z ${#uniqFilesIndexAr
 
 if [[ ${#missingIndex[*]} > 0 ]]; then
   printf "%s\n" "${missingIndex[@]}" > $missingProductsListFile
+  #TODO: popraw tak aby na bierząco zapisywało brakujące indexy (NOTE: gdy z jakiegoś powodu skrypt zostanie przerwany przed rozpoczęciem nie zapisuje brakujących indexów)
   echo -e "\033[0;31mnie znaleziono ${#missingIndex[*]} produktów z listy, zapisano do folderu 'missingProducts.txt'\033[0m"
 fi
 

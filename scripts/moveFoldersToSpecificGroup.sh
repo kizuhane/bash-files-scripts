@@ -27,12 +27,11 @@ function  displayHelp {
   echo "MISSING_REQUIRED_FOLDERS_FILE   name of txt file where will be printed all items wich missing or empty folder [default: 'emptyProducts.txt']"
   echo "REQUIRED_FOLDER_NAME            name of specify folder that is required and can't be empty [default: 'gotowe.txt']"
   echo
-  echo "Syntax: scriptTemplate [-f|h]"
+  echo "Syntax: scriptTemplate [-i|p|f|h]"
   echo "options:"
   echo "i     specify name of file wich item to move if empty refer to default [FILE_WITH_INDEX_TO_EXPORT]"
-  echo "n     Directory name where folders will be exported if empty refer to default [EXPORT_FOLDER]"
   echo "p     Add additional absolute or relative paht to directory where folders will be exported; default ./"
-  echo "f     Specyfy folder name where items will be moved"
+  echo "f     Specyfy folder name where items will be moved, if empty refer to default [EXPORT_FOLDER]"
   echo "h     Print this Help."
   echo
 }
@@ -59,7 +58,7 @@ while getopts hp:f:i: flag ;do
               EXPORT_FOLDER="${OPTARG}"
             fi;;
         p) if [[ $OPTARG ]]; then
-              EXPORT_FOLDER_PATH=`cygpath -u $OPTARG`
+              EXPORT_FOLDER_PATH=`cygpath -u "${OPTARG}"`
             fi;;
         h) displayHelp; exit 0;;
     esac
