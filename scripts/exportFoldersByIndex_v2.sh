@@ -14,16 +14,13 @@ FLAG_PRESERVE_ORIGINAL_NAME=false # -n
 
 #--------- [ manual overwrite ] ---------
 REQUIRED_FOLDER_NAME="gotowe"
-
+declare -a EXPORT_ALSO_LIST # -E
 #---------------------------
 # other global string variabels
 EXPORT_FULL_DIRECTORY=""
 USR_SYSTEM=""
 
-# TODO:
-# - add max depth [d]
-
-# EXAMPLE: sh moveFoldersToSpecificGroup.sh -i 'items.txt' -p 'C:\___TEST\export folders\move_here' -f 'export items'
+# EXAMPLE: sh moveFoldersToSpecificGroup.sh -i 'items.txt' -p 'C:\___TEST\export folders\move_here' -f 'export items' -l -d
 function  displayHelp {
   echo "sctipt to relocate folders to new directory serching by index from provaided txt file"
   echo "CAUTION: Script don't check if folder have same index in them. if w folder will have same index script will export only first whats find and don't show any errors"
@@ -48,6 +45,7 @@ function  displayHelp {
   echo "d     shift deapt of searching directory to 2, false on default."
   echo "l     save log file of done action, false on default.[exportFoldersScript.log]"
   echo "n     leave orginal name for folder, false on default."
+  echo "E     add extra folders to export you can add multiple by reapiting flag"
   echo "h     Print this Help."
   echo
 }
@@ -65,7 +63,7 @@ function getSystemName {
 
 ### list of allow flags
 # "options: [-i|f|p|d|s|l|n|h]"
-while getopts hp:f:i:dsln flag ;do
+while getopts hp:f:i:dslnE: flag ;do
     case "${flag}" in
         i) if [[ $OPTARG ]]; then
               FILE_WITH_INDEX_TO_EXPORT="${OPTARG}"
@@ -76,24 +74,27 @@ while getopts hp:f:i:dsln flag ;do
         p) if [[ $OPTARG ]]; then
               EXPORT_FOLDER_PATH=`cygpath -u "${OPTARG}"`
             fi;;
+        E) if [[ $OPTARG ]]; then
+              EXPORT_ALSO_LIST+=("${OPTARG[@]}")
+            fi;;
         d) FLAG_USE_MAX_DEPTH=true;;
         s) FLAG_EXPORT_ONLY_FIRST_IMAGE=true;;
         l) FLAG_CREATE_LOG_FILE=true;;
         n) FLAG_PRESERVE_ORIGINAL_NAME=true;;
         h) displayHelp; exit 0;;
-        \?) echo -e "\033[0;31mMissing arguments for flag\033[0m";exit 0;;
+        \?) echo -e "\033[0;31mIllegal option or missing arguments for flag\033[0m";exit 0;;
     esac
   done
 
-# # wait for user confirmation
-# echo "Do you want to execute program? Enter 'Y' to continue"
-#     read userImput
-#       if [[ $userImput != "Y" ]] ; then
-#         echo -e "\n ------ Exiting program ------\n"
-#         exit 0
-#       break
-#   fi
-# echo -e "\n"
+# wait for user confirmation
+echo "Do you want to execute program? Enter 'Y' to continue"
+    read userImput
+      if [[ $userImput != "Y" ]] ; then
+        echo -e "\n ------ Exiting program ------\n"
+        exit 0
+      break
+  fi
+echo -e "\n"
 
 # confert files wich index clft to lf
 if [[ ! -f $FILE_WITH_INDEX_TO_EXPORT ]];then
@@ -202,8 +203,9 @@ function ExportFolder {
           fi
 
         echo -e "[ ] ── find ${itemIndex} \033[1;30min ${dir} \033[0m"
+        updateLogFile "[✓] ── find ${itemIndex} in ${dir}"
 
-        # create exportet directory path wich dolder name to exported folder [-n]
+        # create exportet directory path wich folder name to exported folder [-n]
         if [[ $FLAG_PRESERVE_ORIGINAL_NAME == true ]]; then
             exportedItemDirectoryName=$dirName
           else
@@ -217,16 +219,29 @@ function ExportFolder {
               let "exportedFilesCounter++"
           else
             cp -r "${dir}/${REQUIRED_FOLDER_NAME}" "${EXPORT_FULL_DIRECTORY}/${exportedItemDirectoryName}"
-
             quantityOfFilesInExportedDirectory=$(ls "${dir}/${REQUIRED_FOLDER_NAME}" | wc -l)
             exportedFilesCounter=$((exportedFilesCounter+$quantityOfFilesInExportedDirectory))
           fi
-
-        echo -e "\033[1A[\033[1;32m✓\033[0m] ── find ${itemIndex} \033[0;40min ${dir} \033[0m"
+        
         echo "    └─ exported ${exportedFilesCounter} Item to: \"`translatePath "${EXPORT_FULL_DIRECTORY}"`\""
-
-        updateLogFile "[✓] ── find ${itemIndex} in ${dir}"
         updateLogFile "    └─ exported ${exportedFilesCounter} Item to: \"`translatePath "${EXPORT_FULL_DIRECTORY}"`\""
+        
+        # copy extra folders [-E] flag
+        if [[ "${#EXPORT_ALSO_LIST[*]}" > 0 ]]; then
+            for extraDir in "${EXPORT_ALSO_LIST[@]}";do
+                # check directory exist
+                if [[ ! -d "${dir}/${extraDir}" ]] || [[ -z `ls -A "$dir/${extraDir}"` ]]; then
+                    echo -e "    └─ \033[0;31m[X] missing folder or empty for: ${dir}/${extraDir}\033[0m"
+                    updateLogFile "    └─ missing folder or empty for: ${dir}/${extraDir}"
+                  else
+                    cp -r "${dir}/${extraDir}" "${EXPORT_FULL_DIRECTORY}/${exportedItemDirectoryName}"
+                    echo "    └─ exported '${extraDir}' folder to: \"`translatePath "${EXPORT_FULL_DIRECTORY}/${extraDir}"`\""
+                    updateLogFile "    └─ exported '${extraDir}' folder to: \"`translatePath "${EXPORT_FULL_DIRECTORY}/${extraDir}"`\""
+                  fi
+              done
+          fi
+
+        echo -e "\033[$((${#EXPORT_ALSO_LIST[*]} + 2))A[\033[1;32m✓\033[0m] ── find ${itemIndex} \033[0;40min ${dir} \033[0m\033[$((${#EXPORT_ALSO_LIST[*]} + 1))B"
 
         # remove element from array
         uniqItemsIndexArray[$item]=${uniqItemsIndexArray[-1]} # replace current item wich last item in array
@@ -263,7 +278,6 @@ uniqItemsIndexArray=($(printf "%s\n" "${filesIndexArray[@]}" | sort -u ))
 echo -e "\nselected items - ${#uniqItemsIndexArray[*]} \n"
 initialItemCounter="${#uniqItemsIndexArray[@]}" # get quantity of all indexes in files to compere layter
 unset filesIndexArray # clear unused array from memory
-
 
 for dir in *; do
   if [ -d "$dir" ]; then
@@ -310,11 +324,11 @@ done
 
 echo -e "\n\nFound ${exportedItemCounter} products, of ${initialItemCounter}"
 
-# # save not found items to the file $MISSING_ITEMS_LIST_FILE
-# if [[ ${#uniqItemsIndexArray[*]} > 0 ]]; then
-#   printf "%s\n" "${uniqItemsIndexArray[@]}" > $MISSING_ITEMS_LIST_FILE
-#   echo -e "\033[0;31mnie znaleziono ${#uniqItemsIndexArray[*]} produktów z listy, zapisano do folderu 'missingProducts.txt'\033[0m"
-# fi
+# save not found items to the file $MISSING_ITEMS_LIST_FILE
+if [[ ${#uniqItemsIndexArray[*]} > 0 ]]; then
+  printf "%s\n" "${uniqItemsIndexArray[@]}" > $MISSING_ITEMS_LIST_FILE
+  echo -e "\033[0;31m not found ${#uniqItemsIndexArray[*]} folders from list, saved to file 'missingProducts.txt'\033[0m"
+fi
 
-# echo -e "\n"
-# read -n 1 -s -r -p "Press any button to exit"
+echo -e "\n"
+read -n 1 -s -r -p "Press any button to exit"
