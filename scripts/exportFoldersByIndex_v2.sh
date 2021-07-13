@@ -22,7 +22,7 @@ USR_SYSTEM=""
 
 # EXAMPLE: sh moveFoldersToSpecificGroup.sh -i 'items.txt' -p 'C:\___TEST\export folders\move_here' -f 'export items' -l -d
 function  displayHelp {
-  echo "sctipt to relocate folders to new directory serching by index from provaided txt file"
+  echo "sctipt to export folders to new directory serching by index from provaided txt file"
   echo "CAUTION: Script don't check if folder have same index in them. if w folder will have same index script will export only first whats find and don't show any errors"
   echo
   echo "example: sh moveFoldersToSpecificGroup.sh -i 'items.txt' -p 'C:\Produckts\Product list\export' -f 'export items'"
@@ -222,10 +222,10 @@ function ExportFolder {
             quantityOfFilesInExportedDirectory=$(ls "${dir}/${REQUIRED_FOLDER_NAME}" | wc -l)
             exportedFilesCounter=$((exportedFilesCounter+$quantityOfFilesInExportedDirectory))
           fi
-        
+
         echo "    └─ exported ${exportedFilesCounter} Item to: \"`translatePath "${EXPORT_FULL_DIRECTORY}"`\""
         updateLogFile "    └─ exported ${exportedFilesCounter} Item to: \"`translatePath "${EXPORT_FULL_DIRECTORY}"`\""
-        
+
         # copy extra folders [-E] flag
         if [[ "${#EXPORT_ALSO_LIST[*]}" > 0 ]]; then
             for extraDir in "${EXPORT_ALSO_LIST[@]}";do
