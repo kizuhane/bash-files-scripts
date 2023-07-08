@@ -1,226 +1,197 @@
 # Bash Scripts for working with files
+Some bash scripts i wrote for finding, importing and editing filenames
 
-## sposób użycia
+## Console script
 
-- odwieramy gitBash
-- przechodzimy do ścieżki gdzie chcemy wykonać skrypt cd "skopiowana ścieżka" (cd "P:\Praca\przedłużacz x3")
-  - wklejamy do konsoli za pomocą klawisza Insert albo prawy przycisk myszki -> Paste
-- jesli kożystamy z dosu z plików .sh to kopujemy go tam
-- odpalamy skrypt
-  - jeśli pojedyńczy: to wklejamy go
-  - jeśli skrypt z pliku: wykonujemy go za pomocą sh plik_skryptu (sh exportProductsByIndex.sh)
-
-## Script list
-
-### aby znaleźć tylko pierwsze zdjęcia i skopiować je do folderu export plastrol
+### find first image and copy it to folder named expert
 
 ```bash
-find . -regextype posix-extended -regex '.*\_00.jpg' -exec cp -n {} export_plastrol \;
+find . -regextype posix-extended -regex '.*\_00.jpg' -exec cp -n {} export \;
 ```
+> run in main folder 
+> folder `export` need to exist
 
-- folder do exportu musi iuż istnień
-
----
-
-### kopiuj całe foldery gotowe utrzymując drzewo folderów do folderu wcześniej
+### Copy folder named "done" with current folder tree
 
 ```bash
-find . -type d -name 'gotowe' -exec cp -n -r --parent {} ../export_plastrol \;
 ```
 
-- skrypt wymaga poprawy ścieżki docelowej zależnie gdzie został użyty
-
----
-
-### szukanie i kopiowanie folderów gotowe z zmianą ich nazwy
+### Find and copy folder "done" with name change using fist file from folder 
 
 ```bash
-find . -type d -name 'gotowe' | while IFS= read -r NAME; do item="${NAME%/*}"; cp -r -v "$NAME" "export/${item: -7}"; done
+find . -type d -name 'done' | while IFS= read -r NAME; do item="${NAME%/*}"; cp -r -v "$NAME" "export/${item: -7}"; done
 ```
 
----
+## File Script 
 
-### przejście po foldereach i poprawa nazw zdjęć w gotowych
+### Move through folders and update image name in done folder using directory name
 
-plik:**rename.sh**
+File: [`rename.sh`](./scripts/rename.sh)
 
-- startować skrypt z poziomu produktów a nie grup produktowych
-- foldery muszą mieć poprawnie nazwany folder gotowe i index w nazwie głównego folderu
+> run script in product root folder
+> folder need to have correct names nad "done" folder
 
----
+### Move through folders and update image name in done and original folder
 
-### przejście po foldereach i poprawa nazw zdjęć w gotowych i plikach originals
+File: [`renameDoneAndOriginals.sh`](./scripts/renameDoneAndOriginals.sh)
 
-przejście po foldereach i zmiana nazw plików w folderze 'gotowe' i 'originals'
-w gotowe na ${index}_${licznik}
-w originals na ${nazwa folderu}-${licznik}
+| options                 | default value |
+| ----------------------- | ------------- |
+| doneFileFolderName      | gotowe        |
+| originalsFileFolderName | originals     |
 
-plik:**renameDoneAndOrginals.sh**
+> run script in product root folder
+> folder need to have correct names nad "done" folder
 
-- startować skrypt z poziomu produktów a nie grup produktowych
-- przed ruszeniem skryptu należy sprawdzić czy nazwa docelowego folderu oraz rozszerzenie plików się zgadza
+### Move selected files to originals folder
 
----
+| options                 | default value | description                         |
+| ----------------------- | ------------- | ----------------------------------- |
+| originalsFilesExtension | png           | target file extension               |
+| targetFolderName        | originals     | target directory name to move files |
 
-### przeniesienie wyznaczonych plików do folderu originals
 
-originalsfilesExtension = "png" # target file extention
-targetFolderName = "originals" # target directory name to move files
+File: [`moveOriginals.sh`](./scripts/moveOriginals.sh)
 
-plik:**moveOriginals.sh**
+> run script in product root folder
+> folder need to have correct names nad "done" folder
 
-- startować skrypt z poziomu produktów a nie grup produktowych
-- foldery muszą mieć poprawnie nazwany folder gotowe i originals i index w nazwie głównego folderu
+### Export all images to one directory
 
----
+File: [`exportProducts.sh`](./scripts/exportProducts.sh)
 
-### wystaw wszystkie zdjęcia do wspólnego folderu
+| options      | default value   |
+| ------------ | --------------- |
+| ExportFolder | ../ExportFolder |
+| targetFolder | gotowe          |
 
-ExportFolder="../ExportFolder"
-targetFolder="done"
 
-plik:**exportProducts.sh**
+### Export all images from list
 
----
+File: [`exportProductsByIndex.sh`](./scripts/exportProductsByIndex.sh)
 
-### wystaw wszystkie zdjęcia do według listy z indexami
+| options                 | default value       |
+| ----------------------- | ------------------- |
+| FileWithIndexToExport   | export.txt          |
+| ExportFolder            | ExportFolder        |
+| missingProductsListFile | missingProducts.txt |
+| dupProductsListFile     | duplicateIndex.txt  |
 
-FileWithIndexToExport="export.txt"
-ExportFolder="ExportFolder"
-missingProductsListFile="missingProducts.txt"
-duppProductsListFile="dupplicateIndex.txt"
+> script have help flag `-h`
+> file `export.txt` need to exist
+>   - names in export file need to be new line separated 
+> all folder are updated when script finished
+>   - duplicated indexes are saved in *duplicateIndex.txt*
+>   - indexes that are not found are save *missingProducts.txt*
 
-plik:**exportProductsByIndex.sh**
+### Export folders using list from given file
+> improved and optimize version to export files
 
-- plik w którym zapiszać trzeba indexy musi być txt (domyślny to export.txt)
-- plik w którym zawarte są indexy muszą być podzielone jeden index w lini np:
-  > W-99171
-  > W-99162
-  > W-99143
-- skryp zaczyna szukanie od momętu w którym został otworzony
-- automatycznie zmiania nazwe z gotowego na index produktu
-- zapisuje elemęnty w folderze `ExportFolder` w miejsu gdzie skrypt został odpalony
-- wskazuje czy indexy są zduplikowane i te zapisuje do `dupplicateIndex.txt`
-- indexy nie znalezionych produktów zapisuje do `missingProducts.txt`
+File: [`exportFoldersByIndex_v2.sh`](./scripts/exportFoldersByIndex_v2.sh)
 
----
+| options                       | default value                        | flag |
+| ----------------------------- | ------------------------------------ | ---- |
+| FILE_WITH_INDEX_TO_EXPORT     | indexList.txt                        | -i   |
+| EXPORT_FOLDER                 | !!ExportedFolder[$(date +%F)]        | -f   |
+| EXPORT_FOLDER_PATH            |                                      | -p   |
+| FOUND_ITEMS_LIST_FILE         | foundProducts.csv                    |      |
+| MISSING_ITEMS_LIST_FILE       | missingProducts.txt                  |      |
+| MISSING_REQUIRED_FOLDERS_FILE | emptyProducts.csv                    |      |
+| FLAG_CREATE_LOG_FILE          | false                                | -l   |
+| LOG_FILE_NAME                 | exportFoldersScript[$(date +%F)].log |      |
+| FLAG_USE_MAX_DEPTH            | false                                | -d   |
+| FLAG_EXPORT_ONLY_FIRST_IMAGE  | false                                | -s   |
+| FLAG_PRESERVE_ORIGINAL_NAME   | false                                | -n   |
+| REQUIRED_FOLDER_NAME          | gotowe                               |      |
 
-### zmień nazwy wszystkich folderów o podanej nazwie na inną
+> script have help flag `-h` 
+> to know more use `-h `
 
-inputDirName="JPG"
-outoutDirName="newName"
+### change directory name
 
-plik:**renameFolders.sh**
+File: [`renameFolders.sh`](./scripts/renameFolders.sh)
 
-- skrypt odpalamy w grupie produktów
-- przed odpaleniem skryptu należy zmienić nazwy dla `inputDirName` i `outoutDirName` w samym skrypcie
-- `inputDirName` - nazwa folderów do wyszukiwania
-- `outoutDirName` - nowa nazwa wyszukanego folderu
+| options       | default value | description              |
+| ------------- | ------------- | ------------------------ |
+| inputDirName  | JPG           | directory name to change |
+| outputDirName | newName       | new directory name       |
 
----
+> run script in parent folder 
+> before running script remember to change values for `inputDirName` and `outoutDirName`
 
-### zmień nazwy wszystkich plików o podanej nazwie na inną
+### rename files in directory 
 
-inputFileName="9"
-inputFileExtention="jpg"
-outputFileName="10009"
+File: [`renameFile.sh`](./scripts/renameFile.sh)
 
-plik:**renameFolders.sh**
+| options            | default value | description                    |
+| ------------------ | ------------- | ------------------------------ |
+| inputFileName      | 9             | directory name to change       |
+| inputFileExtension | jpg           | extension of the searched file |
+| outputFileName     | 10009         | new directory name             |
 
-- skrypt odpalamy w grupie produktów
-- przed odpaleniem skryptu należy zmienić wartości dla `inputFileName`, `inputFileExtention` i `inputFileExtention`
-- `inputDirName` - nazwa pliku do wyszukiwania
-- `inputFileExtention` - rozszerenie wyszukiwanego pliku
-- `outputFileName` - nowa nazwa wyszukanego folderu
+> run script in parent folder 
+> before running script remember to change values for `inputFileName`, `inputFileExtention` and `inputFileExtention`
 
----
+### rename index name folders to a correct name from file
 
-### zmień nazwy folderów zawierających tylko index na poprawną nazwę
+File: [renameFoldersUsingFile.sh`](./scripts/renameFoldersUsingFile.sh)
 
-FileWithIndexToExport="fileNames.txt"
+| options               | default value | description                     |
+| --------------------- | ------------- | ------------------------------- |
+| FileWithIndexToExport | fileNames.txt | file used to map names to index |
 
-plik:**renameFoldersUsingFile.sh**
+Example: 
+```
+PB-HEAVY-D-K-20M-3X1-5-H05RR-czarny-W-99245
+PB-HEAVY-D-K-20M-3X2-5-H05RR-czarny-W-99249
+```
 
-- skrypt odpalamy w grupie produktów tam gdzie są główne foldery produktu
-- plik w którym zapisać trzeba porpawne nazwy trzeba indexy musi być txt (domyślny to fileNames.txt)
-- plik w którym zawarte są indexy muszą być podzielone jeden index w lini np:
-  > PB-HEAVY-D-K-20M-3X1-5-H05RR-czarny-W-99245
-  > PB-HEAVY-D-K-20M-3X2-5-H05RR-czarny-W-99249
-  > PB-HEAVY-D-K-25M-3X1-5-H05RR-czarny-W-99253
-  > PB-HEAVY-D-K-25M-3X2-5-H05RR-czarny-W-99257
-- skryp zaczyna szukanie od momętu w którym został otworzony
-
----
+> run script in root folder 
+> *fileNames.txt* need to exist, not be empty and have correct values
+> *fileNames.txt* need to have names separated with new line
 
 ### przeszukaj foldery i popraw nazwy dla gotowych z indexów
+### search through directory's and change names for "done" folder
 
-doneFileFolderName="gotowe"
+File: [`fixNameForDoneDirectory.sh`](./scripts/fixNameForDoneDirectory.sh)
 
-plik:**fixNameForDoneDirectory.sh**
+| options            | default value | description                             |
+| ------------------ | ------------- | --------------------------------------- |
+| doneFileFolderName | gotowe        | final folder with files ready to export |
 
-- skrypt odpalamy w grupie produktów tam gdzie są główne foldery produktu
-- skrypt wyświetla tylko foldery wtóre ulegly zmianie
+> run script in parent folder 
+> script log only folders that have changed
 
----
+### Move through folders and collecting names of the photos
 
-### przeszukaj foldery i wylistuj wszystkie zdjęcia po nazwach oraz zapisz do pliku
+File: [`exportPhotosName.sh`](./scripts/exportPhotosName.sh)
 
-doneFileFolderName="gotowe"
-PhotosFileName="PhotosNames.csv"
+| options            | default value   |
+| ------------------ | --------------- |
+| doneFileFolderName | gotowe          |
+| PhotosFileName     | PhotosNames.csv |
 
-plik:**exportPhotosName.sh**
+> run script in parent folder
+> script output to csv file `;` separated
+> script error if do ton find done folder
 
-- skrypt odpalamy w grupie produktów tam gdzie są główne foldery produktu
-- skrypt zapisuje wynik operacji w formacjie CSV odzielone `;` (średnik)
-- skrypt wyświetli bląd jeśli nie znajdzie pliku gotowe
+### Convert file from png to jpg using photoshop
 
----
+Photoshop Script File: [`script.exe`](./scripts/convertPngUsingPhotoshop/script.exe)
 
-### konwersja pliku png na jpg kożystając z photohsopa
+> run script in parent folder
+> script ignore others file then .png
 
-PhotoshopScriptName="script.exe"
+#### Windows version:
+File: [`convertPngUsingPhotoshop_WINDOWS`](./scripts/convertPngUsingPhotoshop/convertPngUsingPhotoshop_WINDOWS.sh)
 
-#### 2 version:
+> if you have error open script and change line when photoshop is run directly to version using cmd runtime
 
-- for server using bash sessions
-- for windows caling cmd sessions
+#### Server version
+File: [`convertPngUsingPhotoshop_SERVER`](./scripts/convertPngUsingPhotoshop/convertPngUsingPhotoshop_SERVER.sh)
 
-dla Windows
-
-```bash
-PhotoshopScriptName="script.exe"
-
-# loop through all folders in this directory
-for dir in *; do
-    if [ -d "$dir" ]; then
-        # Will not run if no directories are available
-
-        # get current paht and convert to windows path
-        dirPath="${PWD}/${dir}"
-        winPath=`cygpath -w $dirPath`
-
-        echo "converting ${winPath}"
-
-        # run photoshop script directly
-        ./$PhotoshopScriptName "\"${winPath}"\"
-
-        # if dont work call cmd.exe usinf code bellow
-        # start $PhotoshopScriptName "\"${winPath}"\"
-    fi
-done
-```
-
-script for windows: **convertPngUsingPhotoshop_WINDOWS.sh**
-script for server: **convertPngUsingPhotoshop_SERVER.sh**
-
-- istotny jest dodatkowy plik skrypt `script.exe` musi znajdować się w tym samym miejscu co odpalany skrypt
-- skrypt należy nadać do grupy produktowej
-- skrypt nie bierze pod uwagę innych plików `.png` w folderach głębiej
-
----
 
 ### additional regex
 
-`^.*-[W|T]\-\d+\-01\.jpg` - dla zdjęć
-
-`[W|T]-[0-9]+$` - dla indexów
+- `^.*-[W|T]\-\d+\-01\.jpg` - for photos
+- `[W|T]-[0-9]+$` - dla indexów

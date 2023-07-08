@@ -1,4 +1,4 @@
-originalsfilesExtension="png" # target file extention
+originalsFilesExtension="png" # target file extention
 targetFolderName="originals" # target directory name to move files
 
 # wait for user confirmation
@@ -26,10 +26,10 @@ if [ $countDir != 0 ]; then
               continue
           fi
 
-          # check if in current directory exist files with extension pointed in $originalsfilesExtension without directory
-          count=`ls -1 ${dir}/*.${originalsfilesExtension} 2>/dev/null | wc -l` # count $originalsfilesExtension
+          # check if in current directory exist files with extension pointed in $originalsFilesExtension without directory
+          count=`ls -1 ${dir}/*.${originalsFilesExtension} 2>/dev/null | wc -l` # count $originalsFilesExtension
           if [ $count != 0 ]; then
-              # run if $originalsfilesExtension files exist
+              # run if $originalsFilesExtension files exist
               echo "── move folders for ${dir} "
 
               # create folder original if arredy don't exist
@@ -39,9 +39,9 @@ if [ $countDir != 0 ]; then
                   echo "  ├─ create folder '${targetFolderName}' in ${dir}"
                 fi
 
-              # move $originalsfilesExtension filest to folder originals
-              mv $dir/*.${originalsfilesExtension} "${folderOrginal}/"
-              echo "  └─ move .${originalsfilesExtension} filest to folder original"
+              # move $originalsFilesExtension filest to folder originals
+              mv $dir/*.${originalsFilesExtension} "${folderOrginal}/"
+              echo "  └─ move .${originalsFilesExtension} filest to folder original"
             fi
 
         fi
