@@ -388,7 +388,7 @@ find . -type f -name "${inputFileName}.${inputFileExtention}" |
   done
 ```
 
-plik:**renameFolders.sh**
+plik:**renameFile.sh**
 
 - skrypt odpalamy w grupie produktów
 - przed odpaleniem skryptu należy zmienić wartości dla `inputFileName`, `inputFileExtention` i `inputFileExtention`

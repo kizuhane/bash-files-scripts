@@ -1,6 +1,6 @@
 inputFileName="9"
-inputFileExtention="jpg"
-outoutDirName="10009"
+inputFileExtension="jpg"
+outputFileName="10009"
 
 # wait for user confirmation
 echo "Czy chcesz wykonać program? wpisz 'Y' aby kontynuować"
@@ -12,7 +12,7 @@ echo "Czy chcesz wykonać program? wpisz 'Y' aby kontynuować"
   fi
 echo -e "\n"
 
-find . -type f -name "${inputFileName}.${inputFileExtention}" |
+find . -type f -name "${inputFileName}.${inputFileExtension}" |
   while IFS= read -r NAME; do
     filePath="${NAME%/*}"
 
@@ -21,10 +21,10 @@ find . -type f -name "${inputFileName}.${inputFileExtention}" |
         continue
     fi
 
-    oldName="${inputFileName}.${inputFileExtention}"
-    newname="${outoutDirName}.${inputFileExtention}"
+    oldName="${inputFileName}.${inputFileExtension}"
+    newname="${outputFileName}.${inputFileExtension}"
 
-    # rename to $outoutDirName
+    # rename to $outputFileName
     mv "$NAME" "${filePath}/${newname}"
     # send info about completion
     echo "rename ${oldName} -> ${newname} in ${filePath}/"

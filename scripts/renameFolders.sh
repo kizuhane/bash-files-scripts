@@ -1,5 +1,5 @@
 inputDirName="JPG"
-outoutDirName="newName"
+outputDirName="newName"
 
 # wait for user confirmation
 echo "Czy chcesz wykonać program? wpisz 'Y' aby kontynuować"
@@ -20,8 +20,8 @@ find . -maxdepth 2 -type d -name "${inputDirName}" |
         continue
     fi
 
-    # rename to $outoutDirName
-    mv "$NAME" "${filePath}/${outoutDirName}"
+    # rename to $outputDirName
+    mv "$NAME" "${filePath}/${outputDirName}"
     # send info about completion
-    echo "rename ${inputDirName} -> ${outoutDirName} in ${filePath}/"
+    echo "rename ${inputDirName} -> ${outputDirName} in ${filePath}/"
   done

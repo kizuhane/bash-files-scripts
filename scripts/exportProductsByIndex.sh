@@ -1,7 +1,7 @@
 FileWithIndexToExport="export.txt"
 ExportFolder="ExportFolder"
 missingProductsListFile="missingProducts.txt"
-duppProductsListFile="dupplicateIndex.txt"
+dupProductsListFile="duplicateIndex.txt"
 #---------------------------
 
 # export only first image flag indicator
@@ -13,7 +13,7 @@ function  displayHelp {
   echo "FileWithIndexToExport     name of txt file with list of index separate by new line [default: 'export.txt']"
   echo "ExportFolder              folder name/path wher files will be exported, can be absolute or relative [default: 'ExportFolder']"
   echo "missingProductsListFile   name of txt file where will be printed all indexes that wasn't find [default: 'missingProducts.txt']"
-  echo "duppProductsListFile      name of txt file where will be printed all indexes that repeated [default: 'dupplicateIndex.txt']"
+  echo "dupProductsListFile      name of txt file where will be printed all indexes that repeated [default: 'duplicateIndex.txt']"
   echo
   echo "Syntax: scriptTemplate [-f|h]"
   echo "options:"
@@ -63,8 +63,8 @@ if [[ ${#duppFilesIndexArray[@]} > 0 ]]; then
   echo -e "\033[0;31m\n----- UWAGA -----\033[0m"
   echo "znaleziono duplikaty w pliku ${FileWithIndexToExport}"
   echo "--- liczba duplikatów: ${#duppFilesIndexArray[*]}"
-  echo "duplikaty zapisano do: ${duppProductsListFile}"
-  printf "%s\n" "${duppFilesIndexArray[@]}" > $duppProductsListFile
+  echo "duplikaty zapisano do: ${dupProductsListFile}"
+  printf "%s\n" "${duppFilesIndexArray[@]}" > $dupProductsListFile
 fi
 
 uniqFilesIndexArray=($(printf "%s\n" "${filesIndexArray[@]}" | sort -u ))
